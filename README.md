@@ -91,3 +91,98 @@ Client code:
 ```
 MyClass instance = new MyClass.Builder(101, 1).name("Test Name").status("Test Status").lat(12.56).lon(56.12).build();
 ```
+
+## Item 3: Implement singleton with a private constructor or an enumn type
+
+A singleton class can be instantiated only once, ie application contains a single instance of the class. Singleton has a
+major disadvantage that their client code is difficult to unit test as it is impossible to prvide a mock implementation
+for a singleton, unless if implements an interface.
+
+Singleton can be implemented in several ways.
+
+One way is to provide a private constructor so that no client code can invoke the constructor, and provide a public
+member to provide access to the instance. 
+
+This member can be a field:
+
+```
+public class Singleton {
+    public static Singleton INSTANCE = new Singleton();
+    
+    private Singleton() {
+        
+    }
+    
+    public void doYourStuff() {
+        
+    }
+}
+```
+...or, it can be a factory method:
+
+```
+public class Singleton {
+    private static Singleton INSTANCE = new Singleton();
+    
+    private Singleton() {
+        
+    }
+
+    public static Singleton getInstance() {
+        return INSTANCE;
+    }
+    
+    public void doYourStuff() {
+        
+    }
+}
+```
+
+Field based approach is easier to implement, while factory method based approach has advantage that we can easily make
+class non-singleton without changing API of the class.
+
+These approaches have a loophole  that deserialization can cause multiple instances of supposedly singleton class.
+To have guarantee singleton,we declare all instance variables transient and provide implementation of readResolve method.
+Also, private constructor can be invoked using reflection API, which we can have a workaround by throwing exception in
+constructor when invoked again after first time.
+
+```
+private Object readResolve() {
+    return INSTANCE;
+}
+```
+
+Another approach to implement singleton is enum based.
+
+```
+public enum Singleton {
+    INSTANCE;
+
+    public void doYourStuff() {
+
+    }
+}
+```
+
+This approach is much more clean as it provides all the protection against deserialization and reflection issues.
+
+## Item 4: Enforce noninstantiability using private constructor
+
+If we need a class which contains only static members, like utility classes, then there is no point in having instances
+of such classes. We may be tempted to enforce it by making class abstract, but that doesn't work as class can be subclassed
+and subclass can be instantiated. We can enforce noninstantiability by making constructor private:
+
+```
+public class NonInstantiableClass {
+    
+    private NonInstantiableClass() {
+        throw new AssertionError("This class can't be instantiated");
+    }
+}
+```
+
+With constructor as private, no code outside the class can invoke it. AssertionError ensures that code inside the class also
+is not able to instantiate it. Also, this class can't be subclassed as there is no accessible superclass constructor to be
+invoked from subclass constructors.
+
+
