@@ -92,7 +92,7 @@ Client code:
 MyClass instance = new MyClass.Builder(101, 1).name("Test Name").status("Test Status").lat(12.56).lon(56.12).build();
 ```
 
-## Item 3: Implement singleton with a private constructor or an enumn type
+## Item 3: Implement singleton with a private constructor or an enum type
 
 A singleton class can be instantiated only once, ie application contains a single instance of the class. Singleton has a
 major disadvantage that their client code is difficult to unit test as it is impossible to prvide a mock implementation
